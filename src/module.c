@@ -3,7 +3,7 @@
 #include "common.h"
 #include "log.h"
 #include "version.h"
-#include "solaris-service.h"
+#include "solaris-scf.h"
 
 static int zbx_module_scf_autodiscovery(AGENT_REQUEST *request, AGENT_RESULT *result);
 static int zbx_module_scf_status(AGENT_REQUEST *request, AGENT_RESULT *result);
@@ -90,21 +90,23 @@ ZBX_METRIC *zbx_module_item_list()
 
 static int zbx_module_scf_autodiscovery(AGENT_REQUEST *request, AGENT_RESULT *result)
 {
-    char *json;
+    const char *__function_name = "zbx_module_scf_autodiscovery";
+    char *data;
 
-    json = scf_discovery();
+    data = scf_discovery();
 
     zabbix_log(LOG_LEVEL_TRACE,
-               "Module: %s - raw data: %s (%s:%d)",
-               MODULE_NAME, json, __FILE__, __LINE__);
+               "Module: %s, function: %s - raw data: %s (%s:%d)",
+               MODULE_NAME, __function_name, data, __FILE__, __LINE__);
 
-    SET_STR_RESULT(result, strdup(json));
-    zbx_free(json);
+    SET_STR_RESULT(result, zbx_strdup(NULL, data));
+    zbx_free(data);
     return SYSINFO_RET_OK;
 }
 
 static int zbx_module_scf_status(AGENT_REQUEST *request, AGENT_RESULT *result)
 {
+    const char *__function_name = "zbx_module_scf_status";
     int status;
 
     if (1 != request->nparam)
@@ -119,7 +121,15 @@ static int zbx_module_scf_status(AGENT_REQUEST *request, AGENT_RESULT *result)
 
     char *scf = get_rparam(request, 0);
 
+    zabbix_log(LOG_LEVEL_TRACE,
+               "Module: %s, function: %s - service: %s (%s:%d)",
+               MODULE_NAME, __function_name, scf, __FILE__, __LINE__);
+
     status = scf_status_int(scf);
+
+    zabbix_log(LOG_LEVEL_TRACE,
+               "Module: %s, function: %s - service: %s, status: %d (%s:%d)",
+               MODULE_NAME, __function_name, scf, status, __FILE__, __LINE__);
 
     SET_UI64_RESULT(result, status);
     return SYSINFO_RET_OK;

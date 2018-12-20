@@ -4,10 +4,11 @@
 #include <errno.h>
 #include <libscf.h>
 #include "sys/systeminfo.h"
-#include "solaris-service.h"
+#include "solaris-scf.h"
 
 char *scf_discovery(void)
 {
+    const char *__function_name = "scf_discovery";
     struct zbx_json json;
     int r;
 
@@ -24,14 +25,18 @@ char *scf_discovery(void)
     if (handle == NULL || scope == NULL || svc == NULL ||
         inst == NULL || svc_iter == NULL || inst_iter == NULL || fmri == NULL)
     {
-        //failure
+        zabbix_log(LOG_LEVEL_DEBUG,
+                   "Module: %s, function: %s - handle is NULL (%s:%d)",
+                   MODULE_NAME, __function_name, __FILE__, __LINE__);
     }
 
     if (scf_handle_bind(handle) == -1 ||
         scf_handle_get_scope(handle, SCF_SCOPE_LOCAL, scope) == -1 ||
         scf_iter_scope_services(svc_iter, scope) ==-1)
     {
-        //failure
+        zabbix_log(LOG_LEVEL_DEBUG,
+                   "Module: %s, function: %s - scf_handle_bind is FAILURE (%s:%d)",
+                   MODULE_NAME, __function_name, __FILE__, __LINE__);
     }
 
     zbx_json_init(&json, ZBX_JSON_STAT_BUF_LEN);
@@ -86,8 +91,20 @@ char *scf_discovery(void)
 
 int scf_status_int(const char *scf)
 {
-    const char *status_string = smf_get_state(scf);
-    int status_int = smf_state_from_string(status_string);
+    const char *status_string;
+    int status_int;
+
+    status_string = smf_get_state(scf);
+
+    if (status_string != NULL)
+    {
+        status_int = smf_state_from_string(status_string);
+    }
+    else
+    {
+        /* NULL */
+        status_int = 0;
+    }
 
     return status_int;
 }

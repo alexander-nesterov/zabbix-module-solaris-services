@@ -1,6 +1,6 @@
-NAME_LIBRARY=solaris-services.so
+NAME_LIBRARY=solaris-scf.so
 ROOT_SOURCES=src
-SOURCES=$(ROOT_SOURCES)/module.c $(ROOT_SOURCES)/solaris-service.c
+SOURCES=$(ROOT_SOURCES)/module.c $(ROOT_SOURCES)/solaris-scf.c
 ZBX_INCLUDE=../../../include
 CFLAGS=-m64 -fPIC -shared -Wall
 LDFLAGS=-lscf
