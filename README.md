@@ -1,0 +1,1 @@
+# zabbix-module-solaris-services
