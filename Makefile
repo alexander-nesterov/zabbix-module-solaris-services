@@ -6,6 +6,14 @@ ZBX_INCLUDE=zabbix/include
 CFLAGS=-m64 -fPIC -shared -Wall
 LDFLAGS=-lscf
 
+.PHONY: zabbix-start
+zabbix-start:
+	docker-compose -f docker-compose.yml up -d
+
+.PHONY: zabbix-stop
+zabbix-stop:
+	docker-compose stop
+
 .PHONY: clone
 clone:
 	@git clone https://github.com/zabbix/zabbix.git --branch $(ZBX_VERSION) --single-branch

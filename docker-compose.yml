@@ -1,0 +1,48 @@
+# https://github.com/zabbix/zabbix-docker
+# https://www.zabbix.com/documentation/current/en/manual/installation/containers
+# https://hub.docker.com/_/mysql
+# https://hub.docker.com/u/zabbix
+version: "3"
+services:
+  mysql:
+    platform: linux/x86_64
+    image: mysql:8.0
+    container_name: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=123
+      - MYSQL_DATABASE=zabbix
+      - MYSQL_USER=dev
+      - MYSQL_PASSWORD=dev
+  zabbix-server:
+    platform: linux/x86_64
+    image: zabbix/zabbix-server-mysql:6.0-ubuntu-latest
+    container_name: zabbix-server
+    ports:
+      - "10051:10051"
+    environment:
+      - DB_SERVER_HOST=mysql
+      - DB_SERVER_PORT=3306
+      - MYSQL_DATABASE=zabbix
+      - MYSQL_USER=dev
+      - MYSQL_PASSWORD=dev
+    depends_on:
+      - mysql
+  zabbix-web:
+    platform: linux/x86_64
+    image: zabbix/zabbix-web-nginx-mysql:6.0-ubuntu-latest
+    container_name: zabbix-web
+    ports:
+      - "80:80"
+    environment:
+      - DB_SERVER_HOST=mysql
+      - DB_SERVER_PORT=3306
+      - MYSQL_DATABASE=zabbix
+      - MYSQL_USER=dev
+      - MYSQL_PASSWORD=dev
+      - TZ=Asia/Novosibirsk
+
+    depends_on:
+      - mysql
+      - zabbix-server
